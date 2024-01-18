@@ -8,6 +8,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -31,7 +32,14 @@ public class UserService {
     /**
      * todo 로그인, 로그아웃
      */
+    public User login(User user) {
+        User findUser = userRepository.findByLoginId(user.getLoginId());
+        if (findUser == null || !Objects.equals(findUser.getPassword(), user.getPassword())) {
+            return null;
+        }
 
+        return findUser;
+    }
 
 
 }

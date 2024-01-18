@@ -31,6 +31,6 @@ class UserServiceTest {
 
         // then
         User findUser = userRepository.findByLoginId("id1");
-        Assertions.assertEquals(user, findUser);
+        assertEquals(user, findUser);
     }
 }
