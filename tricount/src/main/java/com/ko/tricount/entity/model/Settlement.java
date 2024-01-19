@@ -24,4 +24,8 @@ public class Settlement {
 
     @OneToMany(mappedBy = "settlement")
     private List<SettlementParticipant> participants = new ArrayList<>();
+
+    public Settlement(String name) {
+        this.name = name;
+    }
 }
