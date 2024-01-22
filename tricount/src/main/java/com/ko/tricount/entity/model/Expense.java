@@ -28,7 +28,14 @@ public class Expense {
     private Settlement settlement;
 
     private String name;
-    private int amount;
+    private String amount;
     private LocalDateTime date;
 
+    public Expense(User user, Settlement settlement, String name, String amount, LocalDateTime date) {
+        this.user = user;
+        this.settlement = settlement;
+        this.name = name;
+        this.amount = amount;
+        this.date = date;
+    }
 }

@@ -3,14 +3,12 @@ package com.ko.tricount.entity.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ko.tricount.entity.SettlementParticipant;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity @Getter
 @NoArgsConstructor

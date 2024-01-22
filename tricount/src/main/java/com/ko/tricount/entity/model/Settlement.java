@@ -3,13 +3,11 @@ package com.ko.tricount.entity.model;
 
 import com.ko.tricount.entity.SettlementParticipant;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity @Getter
 @NoArgsConstructor
@@ -23,7 +21,8 @@ public class Settlement {
     private String name;
 
     @OneToMany(mappedBy = "settlement")
-    private List<SettlementParticipant> participants = new ArrayList<>();
+    private Set<SettlementParticipant> participants = new HashSet<>();
+
 
     public Settlement(String name) {
         this.name = name;

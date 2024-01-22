@@ -3,6 +3,7 @@ package com.ko.tricount.controller;
 
 import com.ko.tricount.entity.model.Settlement;
 import com.ko.tricount.entity.model.User;
+import com.ko.tricount.service.SettlementParticipantService;
 import com.ko.tricount.service.SettlementService;
 import com.ko.tricount.util.UserContext;
 import jakarta.persistence.EntityManager;
@@ -20,25 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class SettlementController {
 
     private final SettlementService settlementService;
+    private final SettlementParticipantService settlementParticipantService;
 
-    private final EntityManager em;
 
     /** 정산 생성 */
     @PostMapping("/settlement/create")
-    public ResponseEntity<Settlement> createSettlement(@RequestParam(name = "settlementName") String settlementName) {
+    public ResponseEntity<Settlement> createAndJoinSettlement(@RequestParam(name = "settlementName") String settlementName) {
         log.info("[createSettlement] user={}", UserContext.getCurrentUser().getLoginId());
 
-        // user 가 영속상태인지 확인
-        User currentUser = UserContext.getCurrentUser();
-        if (em.contains(currentUser)) {
-            log.info("currentUser 는 영속상태입니다.");
-        } else {
-            log.info("currentUser 는 영속상태가 아닙니다.");
-        }
+        Settlement settlement = settlementService.createSettlement(settlementName);
+        settlementParticipantService.createSettParti(settlement, UserContext.getCurrentUser());
 
-
-
-        return new ResponseEntity(settlementService.createAndJoinSettlement(settlementName, UserContext.getCurrentUser()), HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
 }
