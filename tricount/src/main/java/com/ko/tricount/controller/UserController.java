@@ -3,19 +3,27 @@ package com.ko.tricount.controller;
 
 import com.ko.tricount.dto.LoginUserReq;
 import com.ko.tricount.dto.SignUpUserReq;
+import com.ko.tricount.dto.UserDto;
+import com.ko.tricount.entity.model.Settlement;
 import com.ko.tricount.entity.model.User;
 import com.ko.tricount.service.UserService;
 import com.ko.tricount.util.SessionConst;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +31,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+
+    /** 전체 회원 조회 */
+    @GetMapping("users")
+    public Result findAll() {
+        List<User> users = userService.findAll();
+//        List<UserDto> collect = users.stream()
+//                .map(u -> new UserDto(u.getId(), u.getLoginId(), u.getPassword(), u.getNickname()))
+//                .collect(Collectors.toList());
+
+        List<UserDto> userDtos = users.stream()
+                .map(u -> {
+                    List<Long> settlementIds = u.getSettlements().stream()
+                            .map(Settlement::getId)
+                            .collect(Collectors.toList());
+                    return new UserDto(u.getId(), u.getLoginId(), u.getPassword(), u.getNickname(), settlementIds);
+                })
+                .collect(Collectors.toList());
+
+
+        return new Result(userDtos.size(), userDtos);
+    }
 
     /** 회원 가입 */
     @PostMapping("/signup")
@@ -64,6 +93,13 @@ public class UserController {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T> {
+        private int count;
+        private T data;
     }
 
 }

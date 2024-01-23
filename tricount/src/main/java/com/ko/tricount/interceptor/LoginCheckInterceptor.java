@@ -37,13 +37,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         try {
             User user = (User) session.getAttribute(SessionConst.LOGIN_MEMBER);
             UserContext.setCurrentUser(user);
-
-//            if (em.contains(user)) {
-//                log.info("user 는 영속상태입니다.");
-//            } else {
-//                log.info("user 는 영속상태가 아닙니다.");
-//            }
-
             log.info("인증된 사용자 요청, user = {}", user.getLoginId());
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "user info not found" + e.getMessage());

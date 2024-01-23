@@ -6,9 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.stylesheets.LinkStyle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity @Getter
 @NoArgsConstructor
@@ -28,7 +27,14 @@ public class User {
     private String nickname;
 
     @OneToMany(mappedBy = "user")
-    private List<SettlementParticipant> participants = new ArrayList<>();
+    private Set<SettlementParticipant> participants = new HashSet<>();
+
+    @Transient
+    public Set<Settlement> getSettlements() {
+        return participants.stream()
+                .map(SettlementParticipant::getSettlement)
+                .collect(Collectors.toSet());
+    }
 
     public User(String loginId, String password) {
         this.loginId = loginId;

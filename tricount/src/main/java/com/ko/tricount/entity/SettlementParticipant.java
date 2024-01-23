@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.Objects;
 
 @Entity @Getter
 @NoArgsConstructor
@@ -26,21 +25,9 @@ public class SettlementParticipant {
     @JoinColumn(name = "sett_id")
     private Settlement settlement;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SettlementParticipant that = (SettlementParticipant) o;
-        return user.equals(that.user) && settlement.equals(that.settlement);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(user, settlement);
-    }
-
     public SettlementParticipant(User user, Settlement settlement) {
         this.user = user;
         this.settlement = settlement;
     }
+
 }
