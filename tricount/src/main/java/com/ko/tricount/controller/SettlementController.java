@@ -1,6 +1,8 @@
 package com.ko.tricount.controller;
 
 
+import com.ko.tricount.dto.Result;
+import com.ko.tricount.dto.SettlementDto;
 import com.ko.tricount.entity.SettlementParticipant;
 import com.ko.tricount.entity.model.Settlement;
 import com.ko.tricount.entity.model.User;
@@ -13,9 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +30,23 @@ public class SettlementController {
     private final SettlementParticipantService settlementParticipantService;
     private final EntityManager em;
 
+    /** 전체 조회 */
+    @GetMapping("/settlements")
+    public Result findAll() {
+        List<Settlement> settlements = settlementService.findAll();
+
+        List<SettlementDto> settlementDtos = settlements.stream()
+                .map(s -> {
+                    List<Long> userIds = s.getUsers().stream()
+                            .map(User::getId)
+                            .collect(Collectors.toList());
+                    return new SettlementDto(s.getId(), s.getName(), userIds);
+                })
+                .collect(Collectors.toList());
+
+        return new Result(settlementDtos.size(), settlementDtos);
+    }
+
     /** 정산 생성 */
     @PostMapping("/settlement/create")
     public ResponseEntity<Settlement> createAndJoinSettlement(@RequestParam(name = "settlementName") String settlementName) {
@@ -37,6 +57,13 @@ public class SettlementController {
         User user = userService.findById(findUserId);
         settlementParticipantService.createSettParti(settlement, user);
 
+        return ResponseEntity.ok().build();
+    }
+
+    /** 정산 삭제 */
+    @PostMapping("/settlement/delete/{id}")
+    public ResponseEntity<Settlement> deleteSettlement(@PathVariable(name = "id") Long id) {
+        settlementService.deleteSettlement(id);
         return ResponseEntity.ok().build();
     }
 

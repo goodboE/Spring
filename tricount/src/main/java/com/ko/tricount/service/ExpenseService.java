@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -58,6 +59,10 @@ public class ExpenseService {
         }
 
         return expenseRepository.save(new Expense(UserContext.getCurrentUser(), settlement, name, amount, LocalDateTime.now()));
+    }
+
+    public List<Expense> findAll() {
+        return expenseRepository.findAll();
     }
 
 

@@ -2,6 +2,7 @@ package com.ko.tricount.controller;
 
 
 import com.ko.tricount.dto.LoginUserReq;
+import com.ko.tricount.dto.Result;
 import com.ko.tricount.dto.SignUpUserReq;
 import com.ko.tricount.dto.UserDto;
 import com.ko.tricount.entity.model.Settlement;
@@ -36,9 +37,6 @@ public class UserController {
     @GetMapping("users")
     public Result findAll() {
         List<User> users = userService.findAll();
-//        List<UserDto> collect = users.stream()
-//                .map(u -> new UserDto(u.getId(), u.getLoginId(), u.getPassword(), u.getNickname()))
-//                .collect(Collectors.toList());
 
         List<UserDto> userDtos = users.stream()
                 .map(u -> {
@@ -95,11 +93,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @Data
-    @AllArgsConstructor
-    static class Result<T> {
-        private int count;
-        private T data;
-    }
+
 
 }

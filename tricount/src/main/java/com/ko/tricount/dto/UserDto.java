@@ -16,6 +16,6 @@ public class UserDto {
     private String loginId;
     private String password;
     private String nickname;
-
     private List<Long> settlements;
+
 }
