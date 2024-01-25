@@ -1,6 +1,7 @@
 package com.ko.tricount.controller;
 
 
+import com.ko.tricount.dto.BalanceDto;
 import com.ko.tricount.dto.Result;
 import com.ko.tricount.dto.SettlementDto;
 import com.ko.tricount.entity.SettlementParticipant;
@@ -65,6 +66,13 @@ public class SettlementController {
     public ResponseEntity<Settlement> deleteSettlement(@PathVariable(name = "id") Long id) {
         settlementService.deleteSettlement(id);
         return ResponseEntity.ok().build();
+    }
+
+    /** 정산 로직 실행 후 삭제 */
+    @PostMapping("/settlement/start/{id}")
+    public Result startSettlementAndDelete(@PathVariable(name = "id") Long id) {
+        List<BalanceDto> balanceDtos = settlementService.startSettlement(id);
+        return new Result(balanceDtos.size(), balanceDtos);
     }
 
 }

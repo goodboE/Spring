@@ -3,6 +3,7 @@ package com.ko.tricount.service;
 
 import com.ko.tricount.entity.model.User;
 import com.ko.tricount.repository.UserRepository;
+import com.ko.tricount.util.UserContext;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,10 +47,15 @@ public class UserService {
 
     /** 로그인 */
     public User login(User user) {
+
         User findUser = userRepository.findByLoginId(user.getLoginId());
         if (findUser == null || !Objects.equals(findUser.getPassword(), user.getPassword())) {
             return null;
         }
+        // UserContext.setCurrentUser(user);
+        UserContext.setCurrentUser(findUser);
+
+        log.info("[UserService] 로그인 후, user = {}", UserContext.getCurrentUser().getId());
 
         return findUser;
     }

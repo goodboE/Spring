@@ -37,7 +37,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         try {
             User user = (User) session.getAttribute(SessionConst.LOGIN_MEMBER);
             UserContext.setCurrentUser(user);
-            log.info("인증된 사용자 요청, user = {}", user.getLoginId());
+            log.info("[Interceptor] 인증된 사용자 요청, user = {}", user.getId());
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "user info not found" + e.getMessage());
             return false;

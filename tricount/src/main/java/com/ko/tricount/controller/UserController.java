@@ -9,6 +9,7 @@ import com.ko.tricount.entity.model.Settlement;
 import com.ko.tricount.entity.model.User;
 import com.ko.tricount.service.UserService;
 import com.ko.tricount.util.SessionConst;
+import com.ko.tricount.util.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -67,15 +68,20 @@ public class UserController {
     public ResponseEntity<Void> login(@Valid @RequestBody LoginUserReq loginUserReq,
                                       HttpServletRequest request) {
 
+        // 로그인 전
+        // log.info("[UserController] 로그인 전, user = {}", UserContext.getCurrentUser().getId());
+
         User user = userService.login(new User(loginUserReq.getLoginId(), loginUserReq.getPassword()));
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // 로그인 성공
+        UserContext.setCurrentUser(user);
         HttpSession session = request.getSession();
         session.setAttribute(SessionConst.LOGIN_MEMBER, user);
-        log.info("[UserController.login] user = {}", user.getLoginId());
+        log.info("[UserController] 로그인 후, user = {}", UserContext.getCurrentUser().getId());
+
 
         return ResponseEntity.ok().build();
     }
@@ -89,7 +95,7 @@ public class UserController {
             session.invalidate();
             return ResponseEntity.ok().build();
         }
-
+        UserContext.clear();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
