@@ -72,6 +72,7 @@ public class SettlementController {
     @PostMapping("/settlement/start/{id}")
     public Result startSettlementAndDelete(@PathVariable(name = "id") Long id) {
         List<BalanceDto> balanceDtos = settlementService.startSettlement(id);
+        settlementService.deleteSettlement(id);
         return new Result(balanceDtos.size(), balanceDtos);
     }
 

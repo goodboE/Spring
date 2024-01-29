@@ -8,6 +8,7 @@ import com.ko.tricount.entity.model.User;
 import com.ko.tricount.repository.ExpenseRepository;
 import com.ko.tricount.repository.SettlementParticipantRepository;
 import com.ko.tricount.repository.SettlementRepository;
+import com.ko.tricount.repository.UserRepository;
 import com.ko.tricount.util.UserContext;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -31,20 +32,24 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final SettlementRepository settlementRepository;
     private final SettlementParticipantRepository settlementParticipantRepository;
-    private final EntityManager em;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Expense createExpense(Long settId, String name, String amount) {
+    public Expense createExpense(Long settId, User user, String name, String amount) {
 
         boolean isSame = false;
 
         // todo 예외처리
         Settlement settlement = settlementRepository.findById(settId).get();
-
         Set<SettlementParticipant> participants = settlement.getParticipants();
-        SettlementParticipant cur = new SettlementParticipant(UserContext.getCurrentUser(), settlement);
-        Set<SettlementParticipant> participants2 = UserContext.getCurrentUser().getParticipants();
+
+        SettlementParticipant cur = new SettlementParticipant(user, settlement);
+
+        User user2 = userRepository.findById(user.getId()).get();
+        Set<SettlementParticipant> participants2 = user2.getParticipants();
+
         for (SettlementParticipant participant : participants) {
+            log.info("participant.user : {}", participant.getUser().getId());
             if (Objects.equals(participant.getUser().getId(), cur.getUser().getId()) && Objects.equals(participant.getSettlement().getId(), cur.getSettlement().getId())) {
                 isSame = true;
                 break;
@@ -58,7 +63,7 @@ public class ExpenseService {
             settlementParticipantRepository.save(cur);
         }
 
-        return expenseRepository.save(new Expense(UserContext.getCurrentUser(), settlement, name, amount, LocalDateTime.now()));
+        return expenseRepository.save(new Expense(user, settlement, name, amount, LocalDateTime.now()));
     }
 
     public List<Expense> findAll() {

@@ -38,9 +38,12 @@ public class ExpenseController {
     public ResponseEntity<Expense> createExpense(
             @RequestParam(name = "settId") Long settId,
             @RequestParam(name = "name") String name,
-            @RequestParam(name = "amount") String amount) {
+            @RequestParam(name = "amount") String amount,
+            HttpServletRequest request) {
 
-        expenseService.createExpense(settId, name, amount);
+        HttpSession session = request.getSession(false);
+        User currentUser = (User) session.getAttribute(SessionConst.LOGIN_MEMBER);
+        expenseService.createExpense(settId, currentUser, name, amount);
 
         return ResponseEntity.ok().build();
     }

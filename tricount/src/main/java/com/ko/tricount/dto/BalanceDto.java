@@ -7,8 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class BalanceDto {
     private Long senderUserNo;
-    private String senderUserName;
     private int sendAmount;
     private Long receiverUserNo;
-    private String receiverUserName;
 }

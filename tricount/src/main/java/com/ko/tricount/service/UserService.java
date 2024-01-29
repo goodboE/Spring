@@ -52,7 +52,8 @@ public class UserService {
         if (findUser == null || !Objects.equals(findUser.getPassword(), user.getPassword())) {
             return null;
         }
-        // UserContext.setCurrentUser(user);
+
+        log.info("UserContext.getCurrentUser = {}", UserContext.getCurrentUser());
         UserContext.setCurrentUser(findUser);
 
         log.info("[UserService] 로그인 후, user = {}", UserContext.getCurrentUser().getId());
