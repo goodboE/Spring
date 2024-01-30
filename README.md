@@ -1,2 +1,1 @@
-# Spring
-mini project with spring
+## 개인 스프링 미니 프로젝트입니다.
