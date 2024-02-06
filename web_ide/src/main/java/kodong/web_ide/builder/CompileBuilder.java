@@ -32,7 +32,7 @@ public class CompileBuilder {
         File sourceFile = new File(uuidPath + "DynamicClass.java");
         File classFile = new File(uuidPath + "DynamicClass.class");
 
-        Class<?> clazz = null;
+        Class<?> clazz;
 
         ByteArrayOutputStream err= new ByteArrayOutputStream();
         PrintStream origErr = System.err;
@@ -113,39 +113,30 @@ public class CompileBuilder {
 
             // stream 정보 저장
             if ((Boolean) result.get("result")) {
-                log.info("[1] stream 정보 저장");
                 returnMap.put("result", ApiResponseResult.SUCCESS.getText());
                 returnMap.put("return", result.get("return"));
                 if(err.toString() != null && !err.toString().equals("")) {
-                    log.info("[2] stream 정보 저장");
                     returnMap.put("SystemOut", err.toString());
                 }else {
-                    log.info("[3] stream 정보 저장");
                     returnMap.put("SystemOut", out.toString());
                 }
             }
             else {
-                log.info("[4] stream 정보 저장");
                 returnMap.put("result", ApiResponseResult.FAIL.getText());
                 if(err.toString() != null && !err.toString().equals("")) {
                     returnMap.put("SystemOut", err.toString());
-                    log.info("[5] stream 정보 저장");
                 }else {
                     returnMap.put("SystemOut", "제한 시간 초과");
-                    log.info("[6] stream 정보 저장");
                 }
             }
 
 
         } catch (Exception e) {
-            log.info("[7] stream 정보 저장");
             e.printStackTrace();
         } finally {
             System.setOut(originOut);
             System.setErr(originErr);
-            log.info("[8] stream 정보 저장");
         }
-        log.info("[8] stream 정보 저장");
         return returnMap;
     }
 }
