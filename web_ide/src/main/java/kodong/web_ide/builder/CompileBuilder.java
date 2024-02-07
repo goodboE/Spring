@@ -17,28 +17,28 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Component
 public class CompileBuilder {
 
-    private final String path = "C:/Users/ko/Desktop/test/compile/";
+    private final String path = "C:/Users/ko/Desktop/ide_path/";
 
     public Object compileCode(String body) throws Exception {
-        String uuid = UUIDUtil.createUUID();
+        String uuid = UUID.randomUUID().toString().replace("-", "");
         String uuidPath = path + uuid + "/";
 
         File newFolder = new File(uuidPath);
-        File sourceFile = new File(uuidPath + "DynamicClass.java");
-        File classFile = new File(uuidPath + "DynamicClass.class");
+        File sourceFile = new File(uuidPath + "Solution.java");
+        File classFile = new File(uuidPath + "Solution.class");
 
-        Class<?> clazz;
+        Class<?> clazz = null;
 
         ByteArrayOutputStream err= new ByteArrayOutputStream();
         PrintStream origErr = System.err;
 
         try {
-
             newFolder.mkdir();
             new FileWriter(sourceFile).append(body).close();
 
@@ -54,7 +54,7 @@ public class CompileBuilder {
 
             // compile 된 클래스 가져오기
             URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {new File(uuidPath).toURI().toURL()});
-            clazz = Class.forName("DynamicClass", true, classLoader);
+            clazz = Class.forName("Solution", true, classLoader);
             log.error("[CompileBuilder] 컴파일 완료 :: {}", clazz);
 
             return clazz.getConstructor().newInstance();
@@ -82,14 +82,16 @@ public class CompileBuilder {
         Map<String, Object> returnMap = new HashMap<>();
 
         // 실행할 메소드 명
-        String methodName = "runMethod";
-
-        log.info("params: {}", params);
+        String methodName = "solution";
 
         // 파라미터 타입 개수만큼 지정
-        Class[] arguments = new Class[params.length];
+
+
+        Class[] methodParamClass = new Class[params.length];
         for(int i = 0; i < params.length; i++) {
-            arguments[i] = params[i].getClass();
+            // methodParamClass[i] = params[i].getClass();
+            methodParamClass[i] = int.class;
+            log.info("methodParamClass[i] : {}", methodParamClass[i]);
         }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -97,17 +99,14 @@ public class CompileBuilder {
         PrintStream originOut = System.out;
         PrintStream originErr = System.err;
 
-        log.info("arguments: {}", arguments);
+        log.info("arguments: {}", (Object) methodParamClass);
 
         try {
-            log.info("[1]");
             System.setOut(new PrintStream(out));
             System.setErr(new PrintStream(err));
-            log.info("[2]");
 
             // timeout 을 체크하며 실행, 15초 초과시 강제 종료
-            Map<String, Object> result;
-            result = MethodExecutation.timeOutCall(obj, methodName, params, arguments);
+            Map result = MethodExecutation.timeOutCall(obj, methodName, params, methodParamClass);
 
             log.info("[CompileBuilder, runObject] result = {}", result);
 
@@ -115,6 +114,7 @@ public class CompileBuilder {
             if ((Boolean) result.get("result")) {
                 returnMap.put("result", ApiResponseResult.SUCCESS.getText());
                 returnMap.put("return", result.get("return"));
+
                 if(err.toString() != null && !err.toString().equals("")) {
                     returnMap.put("SystemOut", err.toString());
                 }else {
@@ -132,11 +132,13 @@ public class CompileBuilder {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("builder:error", e.getMessage());
         } finally {
             System.setOut(originOut);
             System.setErr(originErr);
+            log.info("finally");
         }
+
         return returnMap;
     }
 }

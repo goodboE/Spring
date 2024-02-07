@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -27,16 +28,14 @@ public class CompileController {
     @PostMapping("/compile/{problemId}")
     public Map<String, Object> compileCode(@RequestBody Map<String, Object> input, @PathVariable(name = "problemId") Long problemId) throws Exception {
 
-
         // 1. 사용자의 code 를 compile -> run
-
-
         Map<String, Object> returnMap = new HashMap<>();
 
-        // compile input code
-        // {"code" : Object} ?
+        // user code -> compile
         Object obj = builder.compileCode(input.get("code").toString());
-        log.info("obj: {}", obj);
+
+
+
 
         // compile 결과 타입이 String 일 경우, compile 실패 후 메세지 반환으로 판단하여 처리 ?
         if (obj instanceof String) {
@@ -45,47 +44,70 @@ public class CompileController {
             returnMap.put("SystemOut", obj.toString());
             return returnMap;
         }
-
         // 시간 체크 시작
         long beforeTime = System.currentTimeMillis();
 
         // 예시 parameters
-        String[] participants = new String[] {"marina", "joshua", "nikola", "vinko", "filipa"};
-        String[] completions = new String[] {"joshua", "filipa", "marina", "nikola"};
-        Object[] params = {participants, completions};
+//        String[] participants = new String[] {"marina", "joshua", "nikola", "vinko", "filipa"};
+//        String[] completions = new String[] {"joshua", "filipa", "marina", "nikola"};
+//        Object[] params = {participants, completions};
 
-        // todo [testcases -> DB 에서 가져와야 함]
-        // testcase 의 input 을 사용자 코드에 삽입 -> output 과 결과가 같은지.
-        List<TestCase> testCases = testCaseService.findTestCasesById(problemId);
+        // todo [testcases -> DB 에서 가져와야 함], 해시맵으로 파싱
+        // todo 사용자 code 에 모든 tc의 input 삽입 -> output 과 같은지 비교
 
+//        List<TestCase> testCases = testCaseService.findTestCasesById(problemId);
+//        for (TestCase testCase : testCases) {
+//            String[] tc = testCase.getInput().split(",");
+//            Object[] params = new Object[] {tc};
+//            Map<String, Object> output = builder.runObject(obj, params);
+//            log.info("result => {}", output);
+//        }
 
-        // run input code
-        Map<String, Object> output = builder.runObject(obj, params);
+        // 문제, TC에 따라 동적으로 변경..
+
+        Class[] methodParamClass = new Class[] {int.class};
+        Object[] methodParamObject = new Object[] {5};
+
+        Method myMethod = obj.getClass().getMethod("solution", methodParamClass);
+        Object result = myMethod.invoke(obj, methodParamObject);
+        log.info("result: {}", result);
+
+        log.info("methodParamClass : {}", (Object) methodParamClass);
+        log.info("methodParamObject : {}", methodParamObject);
+
+        Map<String, Object> output = builder.runObject(obj, new Object[] {12});
         log.info("[실행 후] output = {}", output);
 
         long afterTime = System.currentTimeMillis();
 
-        // run 결과 저장
+        // run 결과 저장..
         returnMap.putAll(output);
+
+        
 
         // 소요 시간
         returnMap.put("performance", (afterTime - beforeTime));
 
         // s :: 결과 체크 :: //
-        try {
-            // 정답 결과가 null 이 아니고 "vinko" 가 아닌 경우 Fail
-            if (returnMap.get("return") != null & returnMap.get("return").equals("vinko")) {
-                returnMap.put("result", ApiResponseResult.FAIL.getText());
-                returnMap.put("SystemOut", returnMap.get("SystemOut").toString() + "\r\n결과 기댓값이 일치하지 않습니다.");
-            }
-
-        } catch (Exception e) {
-            returnMap.put("result", ApiResponseResult.FAIL.getText());
-            returnMap.put("SystemOut", returnMap.get("SystemOut").toString() + "예상치 못한 오류로 검사에 실패했습니다.");
-        }
+//        try {
+//            // 정답 결과가 null 이 아니고 "vinko" 가 아닌 경우 Fail
+//            if (returnMap.get("return") != null & returnMap.get("return").equals("vinko")) {
+//                returnMap.put("result", ApiResponseResult.FAIL.getText());
+//                // returnMap.put("SystemOut", returnMap.get("SystemOut").toString() + "\r\n결과 기댓값이 일치하지 않습니다.");
+//            }
+//
+//        } catch (Exception e) {
+//            log.error("controller.error : {}", e.getMessage());
+//            returnMap.put("result", ApiResponseResult.FAIL.getText());
+//            // returnMap.put("SystemOut", returnMap.get("SystemOut").toString() + "예상치 못한 오류로 검사에 실패했습니다.");
+//        }
 
         return returnMap;
     }
 
+    @PostMapping("/{problemId}")
+    public void test(@RequestBody Map<String, Object> input, @PathVariable(name = "problemId") Long problemId) throws Exception {
+        testCaseService.compileAndRun(problemId, input.get("code").toString());
+    }
 
 }
