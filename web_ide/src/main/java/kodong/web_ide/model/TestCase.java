@@ -23,13 +23,16 @@ public class TestCase {
     @Column(columnDefinition = "TEXT")
     private String output;
 
+    private Boolean hidden;
+
     public void setProblem(Problem problem) {
         this.problem = problem;
         problem.getTestCases().add(this);
     }
 
-    public TestCase(String input, String output) {
+    public TestCase(String input, String output, Boolean hidden) {
         this.input = input;
         this.output = output;
+        this.hidden = hidden;
     }
 }

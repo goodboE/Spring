@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import kodong.web_ide.builder.CompileBuilder;
 import kodong.web_ide.model.TestCase;
 import kodong.web_ide.model.dto.RunResult;
+import kodong.web_ide.model.dto.SubmitResult;
 import kodong.web_ide.repository.TestCaseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +28,19 @@ public class TestCaseService {
     private final CompileBuilder compileBuilder;
     private final TestCaseRepository testCaseRepository;
 
-    // 문제에 맞는 tc 만 가져옴.
-    public List<TestCase> findTestCasesById(Long problemId) {
+    // 히든 테케만 가져옴
+    public List<TestCase> findHiddenTestCasesById(Long problemId) {
         return testCaseRepository.findAll().stream()
                 .filter(tc -> tc.getProblem().getId().equals(problemId))
+                .filter(tc -> tc.getHidden().equals(true))
+                .collect(Collectors.toList());
+    }
+
+    // 공개 테케만 가져옴 (제출X, 실행)
+    public List<TestCase> findOpenTestCaseById(Long problemId) {
+        return testCaseRepository.findAll().stream()
+                .filter(tc -> tc.getProblem().getId().equals(problemId))
+                .filter(tc -> tc.getHidden().equals(false))
                 .collect(Collectors.toList());
     }
 
@@ -38,7 +48,6 @@ public class TestCaseService {
         ArrayList<RunResult> returnList = new ArrayList<>();
 
         Object obj = compileBuilder.compileCode(inputCode);
-        log.info("obj : {}", obj);
 
         // todo 컴파일 실패 에러 메세지 출력
         if (obj instanceof String) {
@@ -47,8 +56,7 @@ public class TestCaseService {
             return returnList;
         }
 
-
-        List<TestCase> testCases = findTestCasesById(problemId);
+        List<TestCase> testCases = findOpenTestCaseById(problemId);
         for (TestCase testCase : testCases) {
 
             long beforeTime = System.currentTimeMillis();
@@ -61,12 +69,9 @@ public class TestCaseService {
             String rr;
             
             for (String input : inputs) {
-                log.info("input: {}", input);
                 String[] _input = input.split(":");
-                log.info("_input: {}", (Object) _input);
                 switch (_input[0]) {
                     case "int" -> {
-                        log.info("int: {}", _input[0]);
                         methodParamClass[i] = int.class;
                         methodParamObject[i++] = Integer.parseInt(_input[1]);
                     }
@@ -85,7 +90,6 @@ public class TestCaseService {
                 resultDtoInput[i-1] = _input[1];
             }
 
-            log.info("methodParamClass : {}", (Object) methodParamClass);
             Method method = obj.getClass().getMethod("solution", methodParamClass);
             Object result = method.invoke(obj, methodParamObject);
             long afterTime = System.currentTimeMillis();
@@ -98,11 +102,72 @@ public class TestCaseService {
 
             // t[1]: 입력값, output: 기댓값, result: 결과값
             returnList.add(new RunResult(resultDtoInput, testCase.getOutput(), rr, (afterTime - beforeTime)));
-            log.info("result {}", result);
         }
+
 
         return returnList;
     }
 
+
+    public List<SubmitResult> submit(Long problemId, String inputCode) throws Exception {
+        List<SubmitResult> returnList = new ArrayList<>();
+
+        Object obj = compileBuilder.compileCode(inputCode);
+        if (obj instanceof String) {
+            returnList.add(new SubmitResult("컴파일 에러", null));
+            return returnList;
+        }
+
+        List<TestCase> testCases = findHiddenTestCasesById(problemId);
+        for (TestCase testCase : testCases) {
+
+            long beforeTime = System.currentTimeMillis();
+            String[] inputs = testCase.getInput().split("#");
+            String[] resultDtoInput = new String[inputs.length];
+            Class[] methodParamClass = new Class[inputs.length];
+            Object[] methodParamObject = new Object[inputs.length];
+
+            int i = 0;
+            // int successCount = 0;
+            String rr;
+
+            for (String input : inputs) {
+                String[] _input = input.split(":");
+                switch (_input[0]) {
+                    case "int" -> {
+                        methodParamClass[i] = int.class;
+                        methodParamObject[i++] = Integer.parseInt(_input[1]);
+                    }
+
+                    case "String" -> {
+                        methodParamClass[i] = String.class;
+                        methodParamObject[i++] = _input[1];
+                    }
+
+                    case "List" -> {
+                        methodParamClass[i] = int[].class;
+                        methodParamObject[i++] = new Gson().fromJson(_input[1], int[].class);
+                    }
+
+                }
+                resultDtoInput[i-1] = _input[1];
+            }
+
+            Method method = obj.getClass().getMethod("solution", methodParamClass);
+            Object result = method.invoke(obj, methodParamObject);
+            long afterTime = System.currentTimeMillis();
+
+            if (result.toString().equals(testCase.getOutput())) {
+                rr = String.format("통과 (수행시간 : %s)", (afterTime - beforeTime));
+                // successCount++;
+            } else {
+                rr = String.format("실패 (수행시간 : %s)", (afterTime - beforeTime));
+            }
+
+            // t[1]: 입력값, output: 기댓값, result: 결과값
+            returnList.add(new SubmitResult(null, rr));
+        }
+        return returnList;
+    }
 
 }
