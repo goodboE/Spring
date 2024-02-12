@@ -26,15 +26,10 @@ public class Problem {
     @OneToMany(mappedBy = "problem")
     private List<TestCase> testCases = new ArrayList<>();
 
-    @Lob
-    private String solutionCode;
 
     public Problem(String title, String description) {
         this.title = title;
         this.description = description;
     }
 
-    public void setSolutionCode(String solutionCode) {
-        this.solutionCode = solutionCode;
-    }
 }
