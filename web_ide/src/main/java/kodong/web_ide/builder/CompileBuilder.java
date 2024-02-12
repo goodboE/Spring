@@ -31,9 +31,8 @@ public class CompileBuilder {
 
         File newFolder = new File(uuidPath);
         File sourceFile = new File(uuidPath + "Solution.java");
-        File classFile = new File(uuidPath + "Solution.class");
 
-        Class<?> clazz = null;
+        Class<?> clazz;
 
         ByteArrayOutputStream err= new ByteArrayOutputStream();
         PrintStream origErr = System.err;
@@ -49,6 +48,8 @@ public class CompileBuilder {
             // compile
             int compileResult = compiler.run(null, null, null, sourceFile.getPath());
             if (compileResult == 1) {
+                log.info("compileResult: {}", compileResult);
+                log.info("err.toString: {}", err);
                 return err.toString();
             }
 
@@ -69,76 +70,10 @@ public class CompileBuilder {
 
             if (sourceFile.exists())
                 sourceFile.delete();
-            if (classFile.exists())
-                classFile.delete();
             if (newFolder.exists())
                 newFolder.delete();
         }
 
     }
 
-
-    public Map<String, Object> runObject(Object obj, Object[] params) throws Exception {
-        Map<String, Object> returnMap = new HashMap<>();
-
-        // 실행할 메소드 명
-        String methodName = "solution";
-
-        // 파라미터 타입 개수만큼 지정
-
-
-        Class[] methodParamClass = new Class[params.length];
-        for(int i = 0; i < params.length; i++) {
-            // methodParamClass[i] = params[i].getClass();
-            methodParamClass[i] = int.class;
-            log.info("methodParamClass[i] : {}", methodParamClass[i]);
-        }
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream err = new ByteArrayOutputStream();
-        PrintStream originOut = System.out;
-        PrintStream originErr = System.err;
-
-        log.info("arguments: {}", (Object) methodParamClass);
-
-        try {
-            System.setOut(new PrintStream(out));
-            System.setErr(new PrintStream(err));
-
-            // timeout 을 체크하며 실행, 15초 초과시 강제 종료
-            Map result = MethodExecutation.timeOutCall(obj, methodName, params, methodParamClass);
-
-            log.info("[CompileBuilder, runObject] result = {}", result);
-
-            // stream 정보 저장
-            if ((Boolean) result.get("result")) {
-                returnMap.put("result", ApiResponseResult.SUCCESS.getText());
-                returnMap.put("return", result.get("return"));
-
-                if(err.toString() != null && !err.toString().equals("")) {
-                    returnMap.put("SystemOut", err.toString());
-                }else {
-                    returnMap.put("SystemOut", out.toString());
-                }
-            }
-            else {
-                returnMap.put("result", ApiResponseResult.FAIL.getText());
-                if(err.toString() != null && !err.toString().equals("")) {
-                    returnMap.put("SystemOut", err.toString());
-                }else {
-                    returnMap.put("SystemOut", "제한 시간 초과");
-                }
-            }
-
-
-        } catch (Exception e) {
-            log.error("builder:error", e.getMessage());
-        } finally {
-            System.setOut(originOut);
-            System.setErr(originErr);
-            log.info("finally");
-        }
-
-        return returnMap;
-    }
 }
