@@ -16,7 +16,4 @@ public class SubmitResultDto<T> {
 
     // Ex) 2개 중 2개 성공
     // private String result;
-
-    // Ex) 정확성 0.0, 합계 0.0/100.0
-    // private String testResult;
 }

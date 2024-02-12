@@ -39,16 +39,24 @@ public class TestDataInit {
 
         // TestCase
         // @Text 다 보니 전부 String,
-        TestCase testCase1 = new TestCase("int:12", "28");
-        TestCase testCase2 = new TestCase("int:5", "6");
-        TestCase testCase3 = new TestCase("int:0", "0");
+        TestCase testCase1 = new TestCase("int:12", "28", false);
+        TestCase testCase2 = new TestCase("int:5", "6", false);
+        TestCase testCase3 = new TestCase("int:0", "0", false);
+        TestCase testCase6 = new TestCase("int:17", "18", true);
+        TestCase testCase7 = new TestCase("int:12", "28", true);
+        TestCase testCase8 = new TestCase("int:5", "6", true);
+        TestCase testCase9 = new TestCase("int:0", "0", true);
 
-        TestCase testCase4 = new TestCase("List:[1,4,2]#List:[5,4,4]", "29");
-        TestCase testCase5 = new TestCase("List:[1,2]#List:[3,4]", "10");
+        TestCase testCase4 = new TestCase("List:[1,4,2]#List:[5,4,4]", "29", false);
+        TestCase testCase5 = new TestCase("List:[1,2]#List:[3,4]", "10", false);
 
         testCase1.setProblem(problem);
         testCase2.setProblem(problem);
         testCase3.setProblem(problem);
+        testCase6.setProblem(problem);
+        testCase7.setProblem(problem);
+        testCase8.setProblem(problem);
+        testCase9.setProblem(problem);
 
         testCase4.setProblem(problem2);
         testCase5.setProblem(problem2);
@@ -56,6 +64,10 @@ public class TestDataInit {
         testCaseRepository.save(testCase1);
         testCaseRepository.save(testCase2);
         testCaseRepository.save(testCase3);
+        testCaseRepository.save(testCase6);
+        testCaseRepository.save(testCase7);
+        testCaseRepository.save(testCase8);
+        testCaseRepository.save(testCase9);
 
         testCaseRepository.save(testCase4);
         testCaseRepository.save(testCase5);
