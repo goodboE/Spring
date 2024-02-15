@@ -6,19 +6,20 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class RunResult<T> {
+
     private T input;
     private String expected;
     private String output;
-
-    // new
     private long performance;
     private String errorMsg;
+    private boolean passed;
 
-    public RunResult(T input, String expected, String output, long performance) {
+    public RunResult(T input, String expected, String output, long performance, boolean passed) {
         this.input = input;
         this.expected = expected;
         this.output = output;
         this.performance = performance;
+        this.passed = passed;
     }
 
     public RunResult(String errorMsg) {

@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SubmitResult<T> {
+public class SubmitResult {
+
     private String errorMsg;
     private String accuracyTest;
-
+    private Boolean passed;
 }

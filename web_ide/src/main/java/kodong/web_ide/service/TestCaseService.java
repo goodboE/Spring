@@ -4,8 +4,10 @@ package kodong.web_ide.service;
 import com.google.gson.Gson;
 import kodong.web_ide.builder.CompileBuilder;
 import kodong.web_ide.model.TestCase;
+import kodong.web_ide.model.dto.ParamDto;
 import kodong.web_ide.model.dto.RunResult;
 import kodong.web_ide.model.dto.SubmitResult;
+import kodong.web_ide.model.dto.TestcaseDto;
 import kodong.web_ide.repository.TestCaseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,37 +29,21 @@ public class TestCaseService {
     private final CompileBuilder compileBuilder;
     private final TestCaseRepository testCaseRepository;
 
-    // 히든 테케만 가져옴
-    public List<TestCase> findHiddenTestCasesById(Long problemId) {
-        return testCaseRepository.findAll().stream()
-                .filter(tc -> tc.getProblem().getId().equals(problemId))
-                .filter(tc -> tc.getHidden().equals(true))
-                .collect(Collectors.toList());
-    }
-
-    // 공개 테케만 가져옴 (제출X, 실행)
-    public List<TestCase> findOpenTestCaseById(Long problemId) {
-        return testCaseRepository.findAll().stream()
-                .filter(tc -> tc.getProblem().getId().equals(problemId))
-                .filter(tc -> tc.getHidden().equals(false))
-                .collect(Collectors.toList());
-    }
-
     public ArrayList<RunResult> compileAndRun(Long problemId, String inputCode) throws Exception {
         ArrayList<RunResult> returnList = new ArrayList<>();
 
         Object obj = compileBuilder.compileCode(inputCode);
 
-        // todo 컴파일 실패 에러 메세지 출력
         if (obj instanceof String) {
             log.info("obj is String!");
             returnList.add(new RunResult(obj.toString()));
             return returnList;
         }
 
-        List<TestCase> testCases = findOpenTestCaseById(problemId);
+        // todo 쿼리메소드로 교체
+        List<TestCase> testCases = testCaseRepository.findByProblemIdAndHiddenIsFalse(problemId);
         for (TestCase testCase : testCases) {
-
+            boolean passed = false;
             long beforeTime = System.currentTimeMillis();
             String[] inputs = testCase.getInput().split("#");
             String[] resultDtoInput = new String[inputs.length];
@@ -70,7 +55,9 @@ public class TestCaseService {
             
             for (String input : inputs) {
                 String[] _input = input.split(":");
+                log.info("_input[0] : {}", _input[0]);
                 switch (_input[0]) {
+
                     case "int" -> {
                         methodParamClass[i] = int.class;
                         methodParamObject[i++] = Integer.parseInt(_input[1]);
@@ -81,9 +68,20 @@ public class TestCaseService {
                         methodParamObject[i++] = _input[1];
                     }
 
-                    case "List" -> {
+                    case "int[]" -> {
+                        log.info("int[]");
                         methodParamClass[i] = int[].class;
                         methodParamObject[i++] = new Gson().fromJson(_input[1], int[].class);
+                    }
+
+                    case "int[][]" -> {
+                        methodParamClass[i] = int[][].class;
+                        methodParamObject[i++] = new Gson().fromJson(_input[1], int[][].class);
+                    }
+
+                    case "long" -> {
+                        methodParamClass[i] = long.class;
+                        methodParamObject[i++] = Long.parseLong(_input[1]);
                     }
 
                 }
@@ -94,14 +92,15 @@ public class TestCaseService {
             Object result = method.invoke(obj, methodParamObject);
             long afterTime = System.currentTimeMillis();
 
-            if (result.toString().equals(testCase.getOutput())) {
+            String[] outputTypeAndValue = testCase.getOutput().split(":");
+            if (result.toString().equals(outputTypeAndValue[1])) {
                 rr = "테스트를 통과하였습니다.";
+                passed = true;
             } else {
                 rr = String.format("실행한 결괏값 %s이 기댓값 %s과 다릅니다.", result, testCase.getOutput());
             }
 
-            // t[1]: 입력값, output: 기댓값, result: 결과값
-            returnList.add(new RunResult(resultDtoInput, testCase.getOutput(), rr, (afterTime - beforeTime)));
+            returnList.add(new RunResult(resultDtoInput, testCase.getOutput(), rr, (afterTime - beforeTime), passed));
         }
 
 
@@ -114,13 +113,14 @@ public class TestCaseService {
 
         Object obj = compileBuilder.compileCode(inputCode);
         if (obj instanceof String) {
-            returnList.add(new SubmitResult("컴파일 에러", null));
+            returnList.add(new SubmitResult("컴파일 에러", null, false));
             return returnList;
         }
 
-        List<TestCase> testCases = findHiddenTestCasesById(problemId);
+        // todo 쿼리메소드
+        List<TestCase> testCases = testCaseRepository.findByProblemIdAndHiddenIsTrue(problemId);
         for (TestCase testCase : testCases) {
-
+            boolean passed = false;
             long beforeTime = System.currentTimeMillis();
             String[] inputs = testCase.getInput().split("#");
             String[] resultDtoInput = new String[inputs.length];
@@ -144,9 +144,19 @@ public class TestCaseService {
                         methodParamObject[i++] = _input[1];
                     }
 
-                    case "List" -> {
+                    case "int[]" -> {
                         methodParamClass[i] = int[].class;
                         methodParamObject[i++] = new Gson().fromJson(_input[1], int[].class);
+                    }
+
+                    case "int[][]" -> {
+                        methodParamClass[i] = int[][].class;
+                        methodParamObject[i++] = new Gson().fromJson(_input[1], int[][].class);
+                    }
+
+                    case "long" -> {
+                        methodParamClass[i] = long.class;
+                        methodParamObject[i++] = Long.parseLong(_input[1]);
                     }
 
                 }
@@ -157,17 +167,53 @@ public class TestCaseService {
             Object result = method.invoke(obj, methodParamObject);
             long afterTime = System.currentTimeMillis();
 
-            if (result.toString().equals(testCase.getOutput())) {
+            String[] outputTypeAndValue = testCase.getOutput().split(":");
+            if (result.toString().equals(outputTypeAndValue[1])) {
                 rr = String.format("통과 (수행시간 : %s)", (afterTime - beforeTime));
+                passed = true;
                 // successCount++;
             } else {
                 rr = String.format("실패 (수행시간 : %s)", (afterTime - beforeTime));
             }
 
             // t[1]: 입력값, output: 기댓값, result: 결과값
-            returnList.add(new SubmitResult(null, rr));
+            returnList.add(new SubmitResult(null, rr, passed));
         }
         return returnList;
     }
 
+    // 공개 테스트 케이스의 첫 번째 값에 대해 타입, 테케 전송
+    // params
+    public ParamDto getParamTypesAndTestCases(Long problemId) {
+        List<TestCase> testCases = testCaseRepository.findByProblemIdAndHiddenIsFalse(problemId);
+        // params : { int[][], int, int }
+
+        TestcaseDto testcaseDto = new TestcaseDto();
+        List<TestcaseDto> testcaseValues = new ArrayList<>();
+
+        for (TestCase testCase : testCases) {
+            String[] testcaseValueAndType = testCase.getOutput().split(":");
+            String[] inputs = testCase.getInput().split("#");
+
+            List<String> testcaseType = new ArrayList<>();
+            List<String> testcaseValue = new ArrayList<>();
+
+            for (String input : inputs) {
+                String[] _input = input.split(":");
+                testcaseType.add(_input[0]);
+                testcaseValue.add(_input[1]);
+            }
+
+            if (testcaseDto.getInput() == null) {
+                testcaseDto.setInput(testcaseType);
+                testcaseDto.setExpected(testcaseValueAndType[0]);
+            }
+
+
+            testcaseValues.add(new TestcaseDto(testcaseValue,testcaseValueAndType[1]));
+        }
+
+
+        return new ParamDto(testcaseDto, testcaseValues);
+    }
 }
