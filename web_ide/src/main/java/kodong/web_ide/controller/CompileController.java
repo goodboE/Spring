@@ -36,9 +36,8 @@ public class CompileController {
         return ResponseEntity.ok(new SubmitResultDto("submit", result, submits));
     }
 
-    // todo 다른 Controller 에 작성
     @GetMapping("/{problemId}/testcase")
-    public ResponseEntity<ParamDto> getParamAndTypes(@PathVariable(name = "problemId") Long problemId) throws Exception {
+    public ResponseEntity<ParamDto> getParamAndTypes(@PathVariable(name = "problemId") Long problemId) {
         return ResponseEntity.ok(testCaseService.getParamTypesAndTestCases(problemId));
     }
 }

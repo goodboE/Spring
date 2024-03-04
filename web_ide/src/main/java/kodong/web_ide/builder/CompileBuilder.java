@@ -25,15 +25,12 @@ public class CompileBuilder {
 
     private final String path = "C:/Users/ko/Desktop/ide_path/";
 
-    public Object compileCode(String body) throws Exception {
+    public Object compileCode(String body) {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String uuidPath = path + uuid + "/";
-
         File newFolder = new File(uuidPath);
         File sourceFile = new File(uuidPath + "Solution.java");
-
         Class<?> clazz;
-
         ByteArrayOutputStream err= new ByteArrayOutputStream();
         PrintStream origErr = System.err;
 
@@ -47,21 +44,15 @@ public class CompileBuilder {
 
             // compile
             int compileResult = compiler.run(null, null, null, sourceFile.getPath());
-            if (compileResult == 1) {
-                log.info("compileResult: {}", compileResult);
-                log.info("err.toString: {}", err);
+            if (compileResult == 1)
                 return err.toString();
-            }
 
-            // compile 된 클래스 가져오기
             URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {new File(uuidPath).toURI().toURL()});
             clazz = Class.forName("Solution", true, classLoader);
-            log.error("[CompileBuilder] 컴파일 완료 :: {}", clazz);
 
             return clazz.getConstructor().newInstance();
 
         } catch (Exception e) {
-            log.error("[CompileBuilder] 소스 컴파일 중 에러 발생 :: {}", e.getMessage());
             return null;
 
         } finally {

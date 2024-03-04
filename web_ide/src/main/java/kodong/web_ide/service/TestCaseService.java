@@ -40,7 +40,6 @@ public class TestCaseService {
             return returnList;
         }
 
-        // todo 쿼리메소드로 교체
         List<TestCase> testCases = testCaseRepository.findByProblemIdAndHiddenIsFalse(problemId);
         for (TestCase testCase : testCases) {
             boolean passed = false;
@@ -138,27 +137,28 @@ public class TestCaseService {
                         methodParamClass[i] = int.class;
                         methodParamObject[i++] = Integer.parseInt(_input[1]);
                     }
-
                     case "String" -> {
                         methodParamClass[i] = String.class;
                         methodParamObject[i++] = _input[1];
                     }
-
                     case "int[]" -> {
                         methodParamClass[i] = int[].class;
                         methodParamObject[i++] = new Gson().fromJson(_input[1], int[].class);
                     }
-
                     case "int[][]" -> {
                         methodParamClass[i] = int[][].class;
                         methodParamObject[i++] = new Gson().fromJson(_input[1], int[][].class);
-                    }
 
+                    }
+                    case "String[][]" -> {
+                        methodParamClass[i] = String[][].class;
+                        methodParamObject[i++] = new Gson().fromJson(_input[1], String[][].class);
+
+                    }
                     case "long" -> {
                         methodParamClass[i] = long.class;
                         methodParamObject[i++] = Long.parseLong(_input[1]);
                     }
-
                 }
                 resultDtoInput[i-1] = _input[1];
             }

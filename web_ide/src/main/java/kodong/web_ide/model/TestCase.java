@@ -35,4 +35,5 @@ public class TestCase {
         this.output = output;
         this.hidden = hidden;
     }
+
 }
