@@ -19,7 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 application.properties
-SocialClientRegistration.class
+SocialClientRegistration.java
 
 .idea
 *.iws
