@@ -3,9 +3,11 @@ package com.ko.jwttoken.jwt;
 import com.ko.jwttoken.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,21 +35,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        System.out.println("Success");
-
-        // username
-        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
-        String username = customUserDetails.getUsername();
-
-        // role
-        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        GrantedAuthority auth = authorities.iterator().next();
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
+        String username = authentication.getName();
+        GrantedAuthority auth = authentication.getAuthorities().iterator().next();
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60 * 60 * 1000L);
+        // create token
+        String accessToken = jwtUtil.createJwt("access", username, role, 600000L);
+        String refreshToken = jwtUtil.createJwt("refresh", username, role, 8640000L);
 
-        response.addHeader("Authorization", "Bearer " + token);
+        // response
+        response.setHeader("access", accessToken);
+        response.addCookie(createCookie("refresh", refreshToken));
+        response.setStatus(HttpStatus.OK.value());
     }
 
     @Override
@@ -55,5 +55,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         System.out.println("Fail");
 
         response.setStatus(401);
+    }
+
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }

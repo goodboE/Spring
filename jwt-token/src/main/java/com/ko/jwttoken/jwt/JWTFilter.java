@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
@@ -24,10 +25,10 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // request 에서 Authorization 헤더를 찾음
-        String authorization = request.getHeader("Authorization");
+        String accessToken = request.getHeader("access");
 
         // Authorization 헤더 검증
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        if (accessToken == null) {
             System.out.println("token null!");
             filterChain.doFilter(request, response);
             return;
@@ -35,25 +36,30 @@ public class JWTFilter extends OncePerRequestFilter {
 
         System.out.println("authorization now..!");
 
-        // "Bearer 제거 후 순수 토큰만 획득"
-        String token = authorization.split(" ")[1];
-        System.out.println(token);
-
         // 토큰 만료 시간 검증
         try {
-            jwtUtil.isExpired(token);
+            jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
-            System.out.println("token expired..");
-            filterChain.doFilter(request, response);
-            e.printStackTrace();
+            PrintWriter writer = response.getWriter();
+            writer.print("access token is expired..!");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        String category = jwtUtil.getCategory(accessToken);
+        if (!category.equals("access")) {
+            PrintWriter writer = response.getWriter();
+            writer.print("invalid access token..!");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         // 토큰에서 username, role 획득
-        String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
+        String username = jwtUtil.getUsername(accessToken);
+        String role = jwtUtil.getRole(accessToken);
 
         // userEntity 생성
-        UserEntity userEntity = new UserEntity(username, "temppassword", role);
+        UserEntity userEntity = new UserEntity(username, role);
 
         // UserDetails 에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
