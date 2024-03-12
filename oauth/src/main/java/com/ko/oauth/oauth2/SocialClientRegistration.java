@@ -19,7 +19,7 @@ public class SocialClientRegistration {
                 .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
                 .tokenUri("https://nid.naver.com/oauth2.0/token")
                 .userInfoUri("https://openapi.naver.com/v1/nid/me")
-                .userNameAttributeName("response")
+                // .userNameAttributeName("response")
                 .build();
     }
 
