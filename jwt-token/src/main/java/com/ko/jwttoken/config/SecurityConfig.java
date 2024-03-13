@@ -4,6 +4,7 @@ package com.ko.jwttoken.config;
 import com.ko.jwttoken.jwt.JWTFilter;
 import com.ko.jwttoken.jwt.JWTUtil;
 import com.ko.jwttoken.jwt.LoginFilter;
+import com.ko.jwttoken.repository.RefreshRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -81,7 +83,7 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // 필터 추가
-        httpSecurity.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정
         httpSecurity.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

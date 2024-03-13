@@ -1,6 +1,8 @@
 package com.ko.jwttoken.jwt;
 
 import com.ko.jwttoken.dto.CustomUserDetails;
+import com.ko.jwttoken.entity.RefreshEntity;
+import com.ko.jwttoken.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -17,12 +19,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -44,6 +48,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createJwt("access", username, role, 600000L);
         String refreshToken = jwtUtil.createJwt("refresh", username, role, 8640000L);
 
+        // save RefreshToken
+        addRefreshEntity(username, refreshToken, 86400000L);
+
         // response
         response.setHeader("access", accessToken);
         response.addCookie(createCookie("refresh", refreshToken));
@@ -63,5 +70,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        RefreshEntity refreshEntity = new RefreshEntity(username, refresh, date.toString());
+
+        refreshRepository.save(refreshEntity);
     }
 }
