@@ -1,6 +1,7 @@
 package com.ko.jwttoken.config;
 
 
+import com.ko.jwttoken.jwt.CustomLogoutFilter;
 import com.ko.jwttoken.jwt.JWTFilter;
 import com.ko.jwttoken.jwt.JWTUtil;
 import com.ko.jwttoken.jwt.LoginFilter;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -84,6 +86,9 @@ public class SecurityConfig {
 
         // 필터 추가
         httpSecurity.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+
+        // 로그아웃 필터 등록
+        httpSecurity.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         // 세션 설정
         httpSecurity.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
