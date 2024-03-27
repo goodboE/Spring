@@ -47,7 +47,6 @@ public class ArticleService {
         else {
             // 부모 글 데이터
             Article parentArticle = articleRepository.findById(parentId).orElseThrow();
-            // 부모글의 자식 수 + 1
 
             boolean contains = em.contains(parentArticle);
             log.info("parentArticle1 영속상태 ? {}", contains);
@@ -70,7 +69,6 @@ public class ArticleService {
             log.info("parentArticle3 영속상태 ? {}", contains3);
 
             Article parentArticle2 = articleRepository.findById(parentId).orElseThrow();
-            // 부모글의 자식 수 + 1
             parentArticle2.addChild();
         }
     }
