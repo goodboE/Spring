@@ -21,6 +21,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             response.sendRedirect("/login?redirectURL=" + requestURI);
             return false;
         }
+        log.info("인증된 사용자 요청");
 
         return true;
     }

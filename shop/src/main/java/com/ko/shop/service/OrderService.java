@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class OrderService {
     private final ItemRepository itemRepository;
 
     @Transactional
-    public Long order(Long userId, Long itemId, int count) {
+    public Long order(Long userId, Long itemId, int count, String address) {
 
         User user = userRepository.findById(userId).orElse(null);
         if (user == null)
@@ -32,7 +34,7 @@ public class OrderService {
         if (item == null)
             throw new NotItemException();
 
-        Delivery delivery = new Delivery(DeliveryStatus.READY, user.getAddress());
+        Delivery delivery = new Delivery(DeliveryStatus.READY, address);
         OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), count);
 
         Order order = Order.createOrder(user, delivery, orderItem);
@@ -46,6 +48,11 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order != null)
             order.cancel();
+    }
+
+    public List<Order> findAll() {
+        List<Order> orders = orderRepository.findAll();
+        return orders;
     }
 
 }

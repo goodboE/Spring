@@ -18,9 +18,9 @@ public class HomeController {
 
     private final SessionManager sessionManager;
 
-//    @GetMapping("/")
-//    public String home(HttpServletRequest request, Model model) {
-//        User currentUser = (User) sessionManager.getSession(request);
-//
-//    }
+    @GetMapping("/")
+    public String home(HttpServletRequest request, Model model) {
+
+        return "home";
+    }
 }

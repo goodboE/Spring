@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header">
+    <title style="color: purple;">CJ OFFSTYLE</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader"></div>
+    <div class="jumbotron"> <h1 style="color: purple;">CJ OFFSTYLE</h1>
+        <p class="lead">회원 기능</p> <p>
+            <a class="btn btn-lg btn-secondary" href="/items" >상품 목록</a>
+            <a class="btn btn-lg btn-secondary" href="/delivery">배송 조회</a> </p>
+        <p class="lead">어드민 기능</p> <p>
+            <a class="btn btn-lg btn-dark" href="/admin/item">상품 등록</a>
+            <a class="btn btn-lg btn-dark" href="/admin/users">회원 목록</a> </p>
+            <a class="btn btn-lg btn-dark" href="/admin/orders">주문 목록</a> </p>
+            <a class="btn btn-lg btn-dark" href="/admin/deliveries">배송 목록</a> </p>
+</div>
+    <div th:replace="fragments/footer :: footer"></div>
+</div> <!-- /container -->
+</body>
+</html>

@@ -14,6 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -54,6 +56,14 @@ public class UserController {
 
         return "redirect:/";
 
+    }
+
+    // 회원 조회
+    @GetMapping("/admin/users")
+    public String userList(Model model) {
+        List<User> users = userService.findAll();
+        model.addAttribute("users", users);
+        return "admin/users";
     }
 
 

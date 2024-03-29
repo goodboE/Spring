@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<body>
+<div class="container">
+  <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+  <form th:object="${orderForm}" method="post">
+
+    <div class="form-group">
+      <label th:for="address">주소</label>
+      <input type="text" th:field="*{address}" class="form-control"
+             placeholder="주소를 입력하세요" />
+    </div>
+
+    <div class="form-group">
+      <label th:for="count">개수</label>
+      <input type="number" th:field="*{count}" class="form-control" placeholder="주문 수량을 입력하세요" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">주문</button>
+
+  </form>
+  <div th:replace="fragments/footer :: footer" />
+</div> <!-- /container -->
+</body>
+</html>

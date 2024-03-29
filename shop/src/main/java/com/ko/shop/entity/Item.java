@@ -26,7 +26,15 @@ public class Item {
         this.quantity -= num;
     }
 
+
     public Item(String name, String content, int price, int quantity) {
+        this.name = name;
+        this.content = content;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    public void updateAttributes(String name, String content, int price, int quantity) {
         this.name = name;
         this.content = content;
         this.price = price;
