@@ -13,13 +13,20 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public void join(User user) {
-        User existUser = userRepository.findById(user.getId()).orElse(null);
+    @Transactional
+    public void join(String userId, String password, String address) {
 
-        if (existUser == null) {
+        if (userRepository.findByUserId(userId) == null) {
+            User user = new User(userId, password, address);
             userRepository.save(user);
         }
         else
             throw new IllegalStateException("이미 존재하는 회원");
     }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+
 }
