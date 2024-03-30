@@ -1,6 +1,7 @@
 package com.ko.shop.service;
 
 import com.ko.shop.entity.Item;
+import com.ko.shop.entity.User;
 import com.ko.shop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,4 +37,5 @@ public class ItemService {
         if (item != null)
             item.updateAttributes(name, content, price, quantity);
     }
+
 }

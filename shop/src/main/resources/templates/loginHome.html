@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+  <div th:replace="fragments/bodyHeader :: bodyHeader"></div>
+  <h4 class="mb-3" th:text="|${user.userId}님 어서오세요!|">로그인 사용자 이름</h4>
+
+  <form action="/logout" method="post">
+    <button type="submit">로그아웃</button>
+  </form>
+
+  <div class="jumbotron">
+    <p class="lead">회원 기능</p> <p>
+    <a class="btn btn-lg btn-secondary" href="/items" >상품 목록</a>
+    <a class="btn btn-lg btn-secondary" href="/myOrders">주문 내역</a> </p>
+    <p class="lead">어드민 기능</p> <p>
+    <a class="btn btn-lg btn-dark" href="/admin/item">상품 등록</a>
+    <a class="btn btn-lg btn-dark" href="/admin/users">회원 목록</a> </p>
+    <a class="btn btn-lg btn-dark" href="/admin/orders">주문 목록</a> </p>
+    <p class="lead">추가 기능</p>
+    <p>
+      <a class="btn btn-lg btn-dark" style="background-color: #800080;" href="/reviews">전체 상품 리뷰</a>
+      <a class="btn btn-lg btn-dark" style="background-color: #800080;" href="/orders">최근 주문 상품</a> </p>
+      <a class="btn btn-lg btn-dark" style="background-color: #800080;" href="/introduction">프로젝트 설명</a> </p>
+    </p>
+  </div>
+  <div th:replace="fragments/footer :: footer"></div>
+</div> <!-- /container -->
+</body>
+</html>

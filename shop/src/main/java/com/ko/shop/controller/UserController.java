@@ -39,13 +39,13 @@ public class UserController {
         return "user/signedSignUp";
     }
 
-    // 회원 가입
+    // 회원 가입 폼
     @GetMapping("/user/add")
     public String signUpForm(@ModelAttribute("signUpForm") SignUpForm signUpForm) {
         return "user/signUpForm";
     }
 
-    // 로그인
+    // 회원 가입
     @PostMapping("/user/add")
     public String signIn(@Valid @ModelAttribute("signUpForm") SignUpForm signUpForm, BindingResult result) {
 

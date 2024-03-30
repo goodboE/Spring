@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="container">
+  <div th:replace="fragments/bodyHeader :: bodyHeader"></div>
+  <div class="jumbotron">
+    <p class="lead">권한이 없습니다. 어드민 계정으로 로그인하세요</p>
+  </div>
+  <div th:replace="fragments/footer :: footer"></div>
+</div> <!-- /container -->
+</body>
+</html>

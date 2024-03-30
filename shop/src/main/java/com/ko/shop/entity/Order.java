@@ -45,6 +45,14 @@ public class Order {
         this.orderNumber = orderNumber;
     }
 
+    public Order(User user, LocalDateTime orderDate, OrderStatus status, String orderNumber) {
+        this.user = user;
+        this.orderDate = orderDate;
+        this.status = status;
+        this.orderNumber = orderNumber;
+    }
+
+
     public void setUser(User user) {
         this.user = user;
         user.getOrders().add(this);

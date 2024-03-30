@@ -55,6 +55,7 @@ public class LoginController {
         HttpSession session = request.getSession(false);
         if (session != null)
             session.invalidate();
+
         return "redirect:/";
     }
 }

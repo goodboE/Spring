@@ -1,11 +1,15 @@
 package com.ko.shop.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
 public class OrderForm {
 
+    @NotEmpty
     private String address;
+
+    @NotEmpty
     private int count;
 
     public OrderForm() {}

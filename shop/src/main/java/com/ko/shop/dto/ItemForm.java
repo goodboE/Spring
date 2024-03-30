@@ -1,21 +1,22 @@
 package com.ko.shop.dto;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class ItemForm {
 
-    @NotEmpty
+    @NotEmpty(message = "이름이 비어있습니다.")
     private String name;
 
     @NotEmpty
     private String content;
 
-    @NotEmpty
+    @NotNull
     private int price;
 
-    @NotEmpty
+    @NotNull
     private int quantity;
 
     public ItemForm() {

@@ -2454,14 +2454,14 @@ fieldset:disabled a.btn {
 }
 
 .btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
+  color: #800080;
+  background-color: #800080;
   border-color: #6c757d;
 }
 
 .btn-secondary:hover {
-  color: #fff;
-  background-color: #5a6268;
+  color: #800080;
+  background-color: #800080;
   border-color: #545b62;
 }
 
@@ -2658,14 +2658,14 @@ fieldset:disabled a.btn {
 }
 
 .btn-dark {
-  color: #fff;
-  background-color: #343a40;
-  border-color: #343a40;
+  color: #800080;
+  background-color: #800080;
+  border-color: #800080;
 }
 
 .btn-dark:hover {
-  color: #fff;
-  background-color: #23272b;
+  color: #800080;
+  background-color: #800080;
   border-color: #1d2124;
 }
 

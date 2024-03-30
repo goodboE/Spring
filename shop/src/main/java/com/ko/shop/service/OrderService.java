@@ -3,6 +3,7 @@ package com.ko.shop.service;
 
 import com.ko.shop.entity.*;
 import com.ko.shop.enums.DeliveryStatus;
+import com.ko.shop.exception.NotEnoughQuantityException;
 import com.ko.shop.exception.NotItemException;
 import com.ko.shop.exception.NotUserException;
 import com.ko.shop.repository.ItemRepository;
@@ -34,6 +35,9 @@ public class OrderService {
         if (item == null)
             throw new NotItemException();
 
+        if (item.getQuantity() < count)
+            throw new NotEnoughQuantityException("상품의 재고가 부족합니다.");
+
         Delivery delivery = new Delivery(DeliveryStatus.READY, address);
         OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), count);
 
@@ -41,6 +45,10 @@ public class OrderService {
 
         orderRepository.save(order);
         return order.getId();
+    }
+
+    public List<Order> findByUserId(Long userId) {
+        return orderRepository.findByUserId(userId);
     }
 
     @Transactional
@@ -54,5 +62,6 @@ public class OrderService {
         List<Order> orders = orderRepository.findAll();
         return orders;
     }
+
 
 }

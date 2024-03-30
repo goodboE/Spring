@@ -21,4 +21,10 @@ public class Review {
     private OrderItem orderItem;
 
     private String content;
+
+    public Review(User user, OrderItem orderItem, String content) {
+        this.user = user;
+        this.orderItem = orderItem;
+        this.content = content;
+    }
 }

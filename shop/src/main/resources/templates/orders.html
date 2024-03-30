@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<body>
+<div class="container">
+  <div th:replace="fragments/bodyHeader :: bodyHeader" />
+  <span style="display: block;">다른 사람이 특정 상품을 구매했다는 사실을 알면 나의 구매 욕구도 상승할 수 있다고 생각합니다.</span>
+  <span style="display: block;">실제 사이트에는 성별, 연령대로 어떤 상품이 팔리고 있는지 보여주면 좋을 것 같습니다.</span>
+  <div>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>회원</th> <th>상품명</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="orderItem : ${orderItems}">
+        <td th:text="${orderItem.order.user.id}"></td>
+        <td th:text="${orderItem.item.name}"></td>
+
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div th:replace="fragments/footer :: footer" />
+</div> <!-- /container -->
+</body>
+</html>

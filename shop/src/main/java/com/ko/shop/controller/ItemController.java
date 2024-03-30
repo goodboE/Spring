@@ -32,11 +32,12 @@ public class ItemController {
 
     // 상품 등록
     @PostMapping("/admin/item")
-    public String addItem(ItemForm itemForm) {
+    public String addItem(@Valid ItemForm itemForm, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors())
+            return "admin/item";
 
         itemService.addItem(itemForm.getName(), itemForm.getContent(), itemForm.getPrice(), itemForm.getQuantity());
-        log.info("name : {}", itemForm.getName());
-        log.info("add item!");
 
         return "redirect:/items";
     }

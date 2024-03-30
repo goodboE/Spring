@@ -3,7 +3,6 @@
 <head th:replace="fragments/header :: header"/>
 <body>
 <div class="container">
-
   <div th:replace="fragments/bodyHeader :: bodyHeader"/>
   </div>
     <table class="table table-striped">
@@ -37,7 +36,7 @@
      function cancel(id) {
          var form = document.createElement("form");
          form.setAttribute("method", "post");
-         form.setAttribute("action", "/admin/orders/" + id + "/cancel");
+         form.setAttribute("action", "/admin/orders/" + id);
          document.body.appendChild(form);
          form.submit();
 } </script>
